@@ -103,9 +103,9 @@ function JSONStringReplacer(key, value) {
   return value;
 }
 
-export function extractMetric (pipelines, scoreRequest, scoreType= constants.scoreType.VALUE) { // scoreRequest: {type: constants.scoreRequest, name: str}
+export function extractMetric (pipelines, scoreRequest, scoreType=constants.scoreType.VALUE) { // scoreRequest: {type: constants.scoreRequest, name: str}
   return pipelines.map(p => {
-    if (scoreRequest.name in p['score_map']) {
+    if (scoreRequest.name in p['score_map']){
       return p['score_map'][scoreRequest.name][scoreType]
     } else {
       return 0;
@@ -155,14 +155,20 @@ export function getPrimitiveLabel(python_path) {
   return name;
 }
 
-export function computePrimitiveImportances(infos, pipelines, scoreRequest) {
+export function computePrimitiveImportances(infos, pipelines, scoreRequest, scoreRequest1, scoreRequest2) {
   const primitiveNames = Object.keys(infos);
   const scores = extractMetric(pipelines, scoreRequest, constants.scoreType.NORMALIZED);
+  const scores1 = extractMetric(pipelines, scoreRequest1, constants.scoreType.NORMALIZED);
+  const scores2 = extractMetric(pipelines, scoreRequest2, constants.scoreType.NORMALIZED);
 
   const hashTable = computePipelinePrimitiveHashTable(pipelines);
   const primitiveImportances = {};
+  var scores_sum = []
+  for(var i = 0; i < scores.length; i++) {
+    scores_sum.push( scores[i] + scores1[i] + scores2[i])
+  }
   primitiveNames.forEach(name => {
-    primitiveImportances[name] = computePrimitiveImportanceBiserialCorrelation(hashTable, scores, name);
+    primitiveImportances[name] = computePrimitiveImportanceBiserialCorrelation(hashTable, scores_sum, name);
   });
   return primitiveImportances;
 }
@@ -339,7 +345,7 @@ export const constants = {
   cellWidth: 15,
   cellHeight: 15,
   widthSeparatorPrimitiveHyperparam: 30,
-  pipelineScoreWidth: 200,
+  pipelineScoreWidth: 180,
   moduleTypeHeight: 20,
   margin: {
     left: 10,

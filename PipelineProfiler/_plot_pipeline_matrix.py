@@ -6,7 +6,7 @@ import json
 import networkx as nx
 from ._graph_matching import pipeline_to_graph, merge_multiple_graphs
 from ._powerset_analysis import compute_group_importance
-from ._comm_api import setup_comm_api
+#from ._comm_api import setup_comm_api
 from collections import defaultdict
 import copy
 
@@ -17,7 +17,7 @@ def comm_powerset_analysis(msg):
     scores = msg['scores']
     analysis = compute_group_importance(pipelines, scores, 2)
     return {"analysis": analysis}
-setup_comm_api('powerset_analysis_comm_api', comm_powerset_analysis)
+#setup_comm_api('powerset_analysis_comm_api', comm_powerset_analysis)
 
 def comm_merge_graphs(msg):
     pipelines = msg['pipelines']
@@ -25,13 +25,14 @@ def comm_merge_graphs(msg):
     merged = merge_multiple_graphs(graphs)
     data_dict = nx.readwrite.json_graph.node_link_data(merged)
     return {"merged": data_dict}
-setup_comm_api('merge_graphs_comm_api', comm_merge_graphs)
+
+#setup_comm_api('merge_graphs_comm_api', comm_merge_graphs)
 
 def comm_export_pipelines(msg):
     global exportedPipelines
     exportedPipelines = msg['pipelines']
     return {}
-setup_comm_api('export_pipelines_comm_api', comm_export_pipelines)
+#setup_comm_api('export_pipelines_comm_api', comm_export_pipelines)
 
 def get_exported_pipelines():
     global exportedPipelines
@@ -63,6 +64,21 @@ def make_html(data_dict, id):
 	    </script>
 	</body>
 	</html>
+	""".format(bundle=bundle, id=id, data_dict=json.dumps(data_dict))
+	return html_all
+
+def make_body(data_dict, id):
+	lib_path = pkg_resources.resource_filename(__name__, "build/pipelineVis.js")
+	bundle = open(lib_path, "r", encoding="utf8").read()
+	html_all = """
+	    <script>
+	    {bundle}
+	    </script>
+	    <div id="{id}">
+	    </div>
+	    <script>
+	        pipelineVis.renderPipelineMatrixBundle("#{id}", {data_dict});
+	    </script>
 	""".format(bundle=bundle, id=id, data_dict=json.dumps(data_dict))
 	return html_all
 
@@ -181,15 +197,18 @@ def prepare_data_pipeline_matrix(pipelines, manual_primitive_types=None):
     }
     return data
 
-def get_pipeline_profiler_html(pipelines):
+def get_pipeline_profiler_html(pipelines, manual_primitive_types=None):
     id = id_generator()
-    data_dict = prepare_data_pipeline_matrix(pipelines)
-    html_all = make_html(data_dict, id)
+    data_dict = prepare_data_pipeline_matrix(pipelines, manual_primitive_types)
+    html_all = make_body(data_dict, id)
     return html_all
     
 def plot_pipeline_matrix(pipelines, manual_primitive_types=None):
-    from IPython.core.display import display, HTML
+    #from IPython.core.display import display, HTML
     id = id_generator()
     data_dict = prepare_data_pipeline_matrix(pipelines, manual_primitive_types)
     html_all = make_html(data_dict, id)
-    display(HTML(html_all))
+    #display(HTML(html_all))
+    return html_all
+
+

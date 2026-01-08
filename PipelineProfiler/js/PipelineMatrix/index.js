@@ -25,6 +25,8 @@ export class PipelineMatrix extends Component {
       importances,
       selectedPipelines,
       metricRequest,
+      metricRequest1,
+      metricRequest2,
       selectedPipelinesColorScale,
       highlightPowersetColumns,
       sortColumnBy
@@ -44,6 +46,8 @@ export class PipelineMatrix extends Component {
       expandedPrimitiveData,
       expandedPrimitiveName,
       metricRequest,
+      metricRequest1,
+      metricRequest2,
       highlightPowersetColumns,
       sortColumnBy
     );
@@ -98,10 +102,43 @@ export class PipelineMatrix extends Component {
             })
           }
         </select>
+
+        <select style={{
+          position: 'absolute',
+          width: constants.pipelineScoreWidth,
+          left: constants.margin.left + constants.pipelineNameWidth + constants.cellWidth * moduleNames.length + paddingHyperparamColsWidth + constants.pipelineScoreWidth ,
+          top: constants.margin.top + constants.moduleNameHeight + constants.moduleImportanceHeight - 25
+        }} className={"selectMetric"} onChange={
+          event => {
+            this.props.metricRequestChange1(JSON.parse(event.target.value));
+          }
+        }>
+          {
+            this.props.metricOptions1.map(metricRequest1 => {
+              return <option key={metricRequest1['name']} value={JSON.stringify(metricRequest1)}>{metricRequest1['name']}</option>
+            })
+          }
+        </select>
+        <select style={{
+          position: 'absolute',
+          width: constants.pipelineScoreWidth,
+          left: constants.margin.left + constants.pipelineNameWidth + constants.cellWidth * moduleNames.length + paddingHyperparamColsWidth + (2 * constants.pipelineScoreWidth),
+          top: constants.margin.top + constants.moduleNameHeight + constants.moduleImportanceHeight - 25
+        }} className={"selectMetric"} onChange={
+          event => {
+            this.props.metricRequestChange2(JSON.parse(event.target.value));
+          }
+        }>
+          {
+            this.props.metricOptions2.map(metricRequest2 => {
+              return <option key={metricRequest2['name']} value={JSON.stringify(metricRequest2)}>{metricRequest2['name']}</option>
+            })
+          }
+        </select>
         <div
           style={{
             position: 'absolute',
-            left: constants.margin.left + constants.pipelineNameWidth + constants.cellWidth * moduleNames.length + paddingHyperparamColsWidth + constants.pipelineScoreWidth,
+            left: constants.margin.left + constants.pipelineNameWidth + constants.cellWidth * moduleNames.length + paddingHyperparamColsWidth + (3 * constants.pipelineScoreWidth),
             top: constants.margin.top + constants.moduleNameHeight + constants.moduleImportanceHeight - 25,
             width: 25,
             height: 25,
@@ -135,9 +172,15 @@ PipelineMatrix.propTypes = {
   pipelines: PropTypes.array.isRequired,
   importances: PropTypes.object.isRequired,
   metricRequestChange: PropTypes.func.isRequired,
+  metricRequestChange1: PropTypes.func.isRequired,
+  metricRequestChange2: PropTypes.func.isRequired,
   sortColumnBy: PropTypes.string,
   metricRequest: PropTypes.object.isRequired,
   metricOptions: PropTypes.array.isRequired,
+  metricRequest1: PropTypes.object.isRequired,
+  metricOptions1: PropTypes.array.isRequired,
+  metricRequest2: PropTypes.object.isRequired,
+  metricOptions2: PropTypes.array.isRequired,
   sortRowBy: PropTypes.string,
   moduleNames: PropTypes.array.isRequired,
   highlightPowersetColumns: PropTypes.array,

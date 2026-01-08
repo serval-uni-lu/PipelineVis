@@ -18,7 +18,7 @@ const mySymbols = [
 ];
 
 export function computePipelineMatrixWidthHeight(pipelines, moduleNames, expandedPrimitiveData) {
-  let svgWidth = constants.pipelineNameWidth + moduleNames.length * constants.cellWidth + constants.pipelineScoreWidth +
+  let svgWidth = constants.pipelineNameWidth + moduleNames.length * constants.cellWidth + (3 * constants.pipelineScoreWidth) +
     constants.margin.left + constants.margin.right;
 
   if (expandedPrimitiveData) {
@@ -111,6 +111,8 @@ export function plotPipelineMatrix(ref,
                                    expandedPrimitiveData,
                                    expandedPrimitiveName,
                                    metricRequest,
+                                   metricRequest1,
+                                   metricRequest2,
                                    highlightPowersetColumns,
                                    sortColumnBy) {
 
@@ -119,8 +121,23 @@ export function plotPipelineMatrix(ref,
   const selectedScores = extractMetric(pipelines, metricRequest);
   const selectedScoresDigests = selectedScores.map((score, idx) => ({
     score,
-    pipeline_digest: pipelines[idx].pipeline_digest
+    pipeline_digest: pipelines[idx].pipeline_digest,
+    index: 0
   }));
+  const selectedScores1 = extractMetric(pipelines, metricRequest1);
+  const selectedScoresDigests1 = selectedScores1.map((score, idx) => ({
+    score,
+    pipeline_digest: pipelines[idx].pipeline_digest,
+    index: 1
+  }));
+  const selectedScores2 = extractMetric(pipelines, metricRequest2);
+  const selectedScoresDigests2 = selectedScores2.map((score, idx) => ({
+    score,
+    pipeline_digest: pipelines[idx].pipeline_digest,
+    index: 2
+  }));
+
+  const selectedScoresArray = [selectedScores,selectedScores1,selectedScores2]
 
   const {svgWidth, svgHeight} = computePipelineMatrixWidthHeight(pipelines, moduleNames, expandedPrimitiveData);
 
@@ -401,9 +418,10 @@ export function plotPipelineMatrix(ref,
     .transition(t)
     .attr("transform", x => `translate(${colScale(x) + colScale.bandwidth() - 7}, ${constants.moduleNameHeight - 10})`);
 
-  const scoreScale = scaleLinear()
-    .domain(extent(selectedScores, x => x))
+  const scoreScale = (x, i) => scaleLinear()
+    .domain(extent(selectedScoresArray[i], x => x))
     .range([0, constants.pipelineScoreWidth]);
+
 
   const paddingHyperparamColsWidth = expandedPrimitiveData ? expandedPrimitiveData.orderedHeader.length * constants.cellWidth + constants.widthSeparatorPrimitiveHyperparam : 0;
 
@@ -423,7 +441,7 @@ export function plotPipelineMatrix(ref,
   legendModuleType.append("text")
     .attr("x", -5)
     .attr("y", -15)
-    .text("Primitive Type")
+    .text("Component Type")
     .style("fill", "#656565")
     .style("font-weight", "bold");
 
@@ -456,15 +474,15 @@ export function plotPipelineMatrix(ref,
 
   const pipelineScoreBars = svg
     .selectAll(".pipeline_score_bars")
-    .data([selectedScoresDigests])
+    .data([selectedScoresDigests, selectedScoresDigests1, selectedScoresDigests2])
     .join(
       enter => enter
         .append("g")
         .attr("class", "pipeline_score_bars")
-        .attr("transform", `translate(${constants.margin.left + constants.pipelineNameWidth + moduleNames.length * constants.cellWidth + paddingHyperparamColsWidth},
+        .attr("transform", (d, i) => `translate(${constants.margin.left + constants.pipelineNameWidth + moduleNames.length * constants.cellWidth + paddingHyperparamColsWidth + (i * constants.pipelineScoreWidth)},
         ${constants.margin.top + constants.moduleNameHeight + constants.moduleImportanceHeight})`),
       update => update
-        .attr("transform", `translate(${constants.margin.left + constants.pipelineNameWidth + moduleNames.length * constants.cellWidth + paddingHyperparamColsWidth},
+        .attr("transform", (d, i) => `translate(${constants.margin.left + constants.pipelineNameWidth + moduleNames.length * constants.cellWidth + paddingHyperparamColsWidth + (i * constants.pipelineScoreWidth)},
         ${constants.margin.top + constants.moduleNameHeight + constants.moduleImportanceHeight})`)
     );
 
@@ -476,7 +494,7 @@ export function plotPipelineMatrix(ref,
         const rect = enter
           .append("rect")
           .attr("transform", x => `translate(0, ${rowScale(x.pipeline_digest) + 3})`)
-          .attr("width", (x) => scoreScale(x.score))
+          .attr("width", (x) => scoreScale(x.score, x.index))
           .attr("height", rowScale.bandwidth() - 4);
         rect.append("title");
         return rect;
@@ -484,7 +502,7 @@ export function plotPipelineMatrix(ref,
       update => update
         .call(update => update.transition(t)
           .attr("transform", x => `translate(0, ${rowScale(x.pipeline_digest) + 3})`)
-          .attr("width", (x) => scoreScale(x.score))
+          .attr("width", (x) => scoreScale(x.score, x.index))
           .attr("height", rowScale.bandwidth() - 4)
         )
     );
