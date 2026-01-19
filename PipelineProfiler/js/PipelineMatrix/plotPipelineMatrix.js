@@ -18,7 +18,7 @@ const mySymbols = [
 ];
 
 export function computePipelineMatrixWidthHeight(pipelines, moduleNames, expandedPrimitiveData) {
-  let svgWidth = constants.pipelineNameWidth + moduleNames.length * constants.cellWidth + (3 * constants.pipelineScoreWidth) +
+  let svgWidth = constants.pipelineNameWidth + moduleNames.length * constants.cellWidth + (4 * constants.pipelineScoreWidth) +
     constants.margin.left + constants.margin.right;
 
   if (expandedPrimitiveData) {
@@ -113,6 +113,7 @@ export function plotPipelineMatrix(ref,
                                    metricRequest,
                                    metricRequest1,
                                    metricRequest2,
+                                   metricRequest3,
                                    highlightPowersetColumns,
                                    sortColumnBy) {
 
@@ -136,8 +137,13 @@ export function plotPipelineMatrix(ref,
     pipeline_digest: pipelines[idx].pipeline_digest,
     index: 2
   }));
-
-  const selectedScoresArray = [selectedScores,selectedScores1,selectedScores2]
+  const selectedScores3 = extractMetric(pipelines, metricRequest3);
+  const selectedScoresDigests3 = selectedScores3.map((score, idx) => ({
+    score,
+    pipeline_digest: pipelines[idx].pipeline_digest,
+    index: 3
+  }));
+  const selectedScoresArray = [selectedScores,selectedScores1,selectedScores2,selectedScores3];
 
   const {svgWidth, svgHeight} = computePipelineMatrixWidthHeight(pipelines, moduleNames, expandedPrimitiveData);
 
@@ -474,7 +480,7 @@ export function plotPipelineMatrix(ref,
 
   const pipelineScoreBars = svg
     .selectAll(".pipeline_score_bars")
-    .data([selectedScoresDigests, selectedScoresDigests1, selectedScoresDigests2])
+    .data([selectedScoresDigests, selectedScoresDigests1, selectedScoresDigests2, selectedScoresDigests3])
     .join(
       enter => enter
         .append("g")

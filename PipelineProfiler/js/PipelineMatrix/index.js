@@ -27,6 +27,7 @@ export class PipelineMatrix extends Component {
       metricRequest,
       metricRequest1,
       metricRequest2,
+      metricRequest3,
       selectedPipelinesColorScale,
       highlightPowersetColumns,
       sortColumnBy
@@ -48,6 +49,7 @@ export class PipelineMatrix extends Component {
       metricRequest,
       metricRequest1,
       metricRequest2,
+      metricRequest3,
       highlightPowersetColumns,
       sortColumnBy
     );
@@ -135,10 +137,26 @@ export class PipelineMatrix extends Component {
             })
           }
         </select>
+        <select style={{
+          position: 'absolute',
+          width: constants.pipelineScoreWidth,
+          left: constants.margin.left + constants.pipelineNameWidth + constants.cellWidth * moduleNames.length + paddingHyperparamColsWidth + (3 * constants.pipelineScoreWidth),
+          top: constants.margin.top + constants.moduleNameHeight + constants.moduleImportanceHeight - 25
+        }} className={"selectMetric"} onChange={
+          event => {
+            this.props.metricRequestChange3(JSON.parse(event.target.value));
+          }
+        }>
+          {
+            this.props.metricOptions3.map(metricRequest3 => {
+              return <option key={metricRequest3['name']} value={JSON.stringify(metricRequest3)}>{metricRequest3['name']}</option>
+            })
+          }
+        </select>
         <div
           style={{
             position: 'absolute',
-            left: constants.margin.left + constants.pipelineNameWidth + constants.cellWidth * moduleNames.length + paddingHyperparamColsWidth + (3 * constants.pipelineScoreWidth),
+            left: constants.margin.left + constants.pipelineNameWidth + constants.cellWidth * moduleNames.length + paddingHyperparamColsWidth + (4 * constants.pipelineScoreWidth),
             top: constants.margin.top + constants.moduleNameHeight + constants.moduleImportanceHeight - 25,
             width: 25,
             height: 25,
@@ -174,6 +192,7 @@ PipelineMatrix.propTypes = {
   metricRequestChange: PropTypes.func.isRequired,
   metricRequestChange1: PropTypes.func.isRequired,
   metricRequestChange2: PropTypes.func.isRequired,
+  metricRequestChange3: PropTypes.func.isRequired,
   sortColumnBy: PropTypes.string,
   metricRequest: PropTypes.object.isRequired,
   metricOptions: PropTypes.array.isRequired,
@@ -181,6 +200,8 @@ PipelineMatrix.propTypes = {
   metricOptions1: PropTypes.array.isRequired,
   metricRequest2: PropTypes.object.isRequired,
   metricOptions2: PropTypes.array.isRequired,
+  metricRequest3: PropTypes.object.isRequired,
+  metricOptions3: PropTypes.array.isRequired,
   sortRowBy: PropTypes.string,
   moduleNames: PropTypes.array.isRequired,
   highlightPowersetColumns: PropTypes.array,

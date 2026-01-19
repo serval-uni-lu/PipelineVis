@@ -155,17 +155,18 @@ export function getPrimitiveLabel(python_path) {
   return name;
 }
 
-export function computePrimitiveImportances(infos, pipelines, scoreRequest, scoreRequest1, scoreRequest2) {
+export function computePrimitiveImportances(infos, pipelines, scoreRequest, scoreRequest1, scoreRequest2, scoreRequest3) {
   const primitiveNames = Object.keys(infos);
   const scores = extractMetric(pipelines, scoreRequest, constants.scoreType.NORMALIZED);
   const scores1 = extractMetric(pipelines, scoreRequest1, constants.scoreType.NORMALIZED);
   const scores2 = extractMetric(pipelines, scoreRequest2, constants.scoreType.NORMALIZED);
+  const scores3 = extractMetric(pipelines, scoreRequest3, constants.scoreType.NORMALIZED);
 
   const hashTable = computePipelinePrimitiveHashTable(pipelines);
   const primitiveImportances = {};
   var scores_sum = []
   for(var i = 0; i < scores.length; i++) {
-    scores_sum.push( scores[i] + scores1[i] + scores2[i])
+    scores_sum.push( scores[i] + scores1[i] + scores2[i] + scores3[i]);
   }
   primitiveNames.forEach(name => {
     primitiveImportances[name] = computePrimitiveImportanceBiserialCorrelation(hashTable, scores_sum, name);

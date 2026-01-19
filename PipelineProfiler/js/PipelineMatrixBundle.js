@@ -35,9 +35,11 @@ export class PipelineMatrixBundle extends Component {
     const metricRequest = metricOptions[0];
     let metricOptions1 = metricNames.filter( x => ["Average Sensitivity", "Continuity"].includes(x)).map(name => ({type: constants.scoreRequest.D3MSCORE, name}));
     const metricRequest1 = metricOptions1[0];
-    let metricOptions2 = metricNames.filter( x => ["Complexity", "Sparseness"].includes(x)).map(name => ({type: constants.scoreRequest.D3MSCORE, name}));
+    let metricOptions2 = metricNames.filter( x => ["Complexity (Chan)", "Complexity (Elem)", "Sparseness (Chan)", "Sparseness (Elem)"].includes(x)).map(name => ({type: constants.scoreRequest.D3MSCORE, name}));
     const metricRequest2 = metricOptions2[0];
-    const importances = computePrimitiveImportances(props.data.infos, props.data.pipelines, metricRequest, metricRequest1, metricRequest2);
+    let metricOptions3 = metricNames.filter( x => ["Accuracy", "RMSE"].includes(x)).map(name => ({type: constants.scoreRequest.D3MSCORE, name}));
+    const metricRequest3 = metricOptions3[0];
+    const importances = computePrimitiveImportances(props.data.infos, props.data.pipelines, metricRequest, metricRequest1, metricRequest2, metricRequest3);
     const sortColumnsBy = constants.sortModuleBy.importance,
       sortRowsBy = constants.sortPipelineBy.pipeline_score;
 
@@ -66,6 +68,8 @@ export class PipelineMatrixBundle extends Component {
       metricOptions1,
       metricRequest2,
       metricOptions2,
+      metricRequest3,
+      metricOptions3,
       importances,
       moduleNames,
       powersetAnalysis: null,
@@ -287,7 +291,7 @@ export class PipelineMatrixBundle extends Component {
     };
 
     const updateMetric = (pipelines) => {
-      const importances = computePrimitiveImportances(this.props.data.infos, pipelines, this.state.metricRequest, this.state.metricRequest1, this.state.metricRequest2);
+      const importances = computePrimitiveImportances(this.props.data.infos, pipelines, this.state.metricRequest, this.state.metricRequest1, this.state.metricRequest2, this.state.metricRequest3);
 
       if (keepSorted) {
         if (sortColumnsBy === sortModuleBy.importance){
@@ -467,7 +471,7 @@ export class PipelineMatrixBundle extends Component {
           }
         }
         metricRequestChange={metricRequest => {
-          const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, metricRequest, this.state.metricRequest1, this.state.metricRequest2);
+          const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, metricRequest, this.state.metricRequest1, this.state.metricRequest2, this.state.metricRequest3);
 
           if (keepSorted) {
             if (sortColumnsBy === sortModuleBy.importance){
@@ -490,7 +494,7 @@ export class PipelineMatrixBundle extends Component {
         }}
 
         metricRequestChange1={metricRequest1 => {
-              const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.state.metricRequest, metricRequest1, this.state.metricRequest2);
+              const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.state.metricRequest, metricRequest1, this.state.metricRequest2, this.state.metricRequest3);
 
               if (keepSorted) {
                 if (sortColumnsBy === sortModuleBy.importance){
@@ -502,10 +506,10 @@ export class PipelineMatrixBundle extends Component {
                 }
 
                 if (sortRowsBy === sortPipelineBy.pipeline_score){
-                  const newPipelines = this.computeSortedPipelines(this.state.pipelines, sortPipelineBy.pipeline_score, this.state.metricRequest);
+                  const newPipelines = this.computeSortedPipelines(this.state.pipelines, sortPipelineBy.pipeline_score, this.state.metricRequest1);
                   this.setState({pipelines: newPipelines});
                 } else if (sortRowsBy === sortPipelineBy.pipeline_source){
-                  const newPipelines = this.computeSortedPipelines(this.state.pipelines, sortPipelineBy.pipeline_source, this.state.metricRequest);
+                  const newPipelines = this.computeSortedPipelines(this.state.pipelines, sortPipelineBy.pipeline_source, this.state.metricRequest1);
                   this.setState({pipelines: newPipelines});
                 }
               }
@@ -513,7 +517,7 @@ export class PipelineMatrixBundle extends Component {
         }}
 
         metricRequestChange2={metricRequest2 => {
-            const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.state.metricRequest, this.state.metricRequest1, metricRequest2);
+            const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.state.metricRequest, this.state.metricRequest1, metricRequest2, this.state.metricRequest3);
 
               if (keepSorted) {
                 if (sortColumnsBy === sortModuleBy.importance){
@@ -525,14 +529,37 @@ export class PipelineMatrixBundle extends Component {
                 }
 
                 if (sortRowsBy === sortPipelineBy.pipeline_score){
-                  const newPipelines = this.computeSortedPipelines(this.state.pipelines, sortPipelineBy.pipeline_score, this.state.metricRequest);
+                  const newPipelines = this.computeSortedPipelines(this.state.pipelines, sortPipelineBy.pipeline_score, this.state.metricRequest2);
+                  this.setState({pipelines: newPipelines});
+                } else if (sortRowsBy === sortPipelineBy.pipeline_source){
+                  const newPipelines = this.computeSortedPipelines(this.state.pipelines, sortPipelineBy.pipeline_source, this.state.metricRequest2);
+                  this.setState({pipelines: newPipelines});
+                }
+              }
+              this.setState({metricRequest2, importances});
+        }}
+
+        metricRequestChange3={metricRequest3 => {
+            const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.state.metricRequest, this.state.metricRequest1, this.state.metricRequest2, metricRequest3);
+
+              if (keepSorted) {
+                if (sortColumnsBy === sortModuleBy.importance){
+                  const newModuleNames = this.computeSortedModuleNames(this.state.moduleNames, sortModuleBy.importance, importances, this.props.data.infos);
+                  this.setState({moduleNames: newModuleNames});
+                }else if (sortColumnsBy === sortModuleBy.moduleType) {
+                  const newModuleNames = this.computeSortedModuleNames(this.state.moduleNames, sortModuleBy.moduleType, importances, this.props.data.infos);
+                  this.setState({moduleNames: newModuleNames});
+                }
+
+                if (sortRowsBy === sortPipelineBy.pipeline_score){
+                  const newPipelines = this.computeSortedPipelines(this.state.pipelines, sortPipelineBy.pipeline_score, this.state.metricRequest3);
                   this.setState({pipelines: newPipelines});
                 } else if (sortRowsBy === sortPipelineBy.pipeline_source){
                   const newPipelines = this.computeSortedPipelines(this.state.pipelines, sortPipelineBy.pipeline_source, this.state.metricRequest);
                   this.setState({pipelines: newPipelines});
                 }
               }
-              this.setState({metricRequest2, importances});
+              this.setState({metricRequest3, importances});
         }}
 
         sortColumnBy={this.state.sortColumnsBy}
@@ -543,6 +570,8 @@ export class PipelineMatrixBundle extends Component {
         metricOptions1={this.state.metricOptions1}
         metricRequest2={this.state.metricRequest2}
         metricOptions2={this.state.metricOptions2}
+        metricRequest3={this.state.metricRequest3}
+        metricOptions3={this.state.metricOptions3}
         importances={this.state.importances}
         moduleNames={this.state.moduleNames}
         onHover={(pipeline, moduleName, mouse) => {
