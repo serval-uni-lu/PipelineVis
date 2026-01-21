@@ -39,7 +39,7 @@ export class PipelineMatrixBundle extends Component {
     const metricRequest2 = metricOptions2[0];
     let metricOptions3 = metricNames.filter( x => ["Accuracy", "RMSE"].includes(x)).map(name => ({type: constants.scoreRequest.D3MSCORE, name}));
     const metricRequest3 = metricOptions3[0];
-    const importances = computePrimitiveImportances(props.data.infos, props.data.pipelines, metricRequest, metricRequest1, metricRequest2, metricRequest3);
+    const importances = computePrimitiveImportances(props.data.infos, props.data.pipelines,props.data.coefficients, metricRequest, metricRequest1, metricRequest2, metricRequest3);
     const sortColumnsBy = constants.sortModuleBy.importance,
       sortRowsBy = constants.sortPipelineBy.pipeline_score;
 
@@ -291,7 +291,7 @@ export class PipelineMatrixBundle extends Component {
     };
 
     const updateMetric = (pipelines) => {
-      const importances = computePrimitiveImportances(this.props.data.infos, pipelines, this.state.metricRequest, this.state.metricRequest1, this.state.metricRequest2, this.state.metricRequest3);
+      const importances = computePrimitiveImportances(this.props.data.infos, pipelines, this.props.data.coefficients, this.state.metricRequest, this.state.metricRequest1, this.state.metricRequest2, this.state.metricRequest3);
 
       if (keepSorted) {
         if (sortColumnsBy === sortModuleBy.importance){
@@ -471,7 +471,7 @@ export class PipelineMatrixBundle extends Component {
           }
         }
         metricRequestChange={metricRequest => {
-          const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, metricRequest, this.state.metricRequest1, this.state.metricRequest2, this.state.metricRequest3);
+          const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.props.data.coefficients, metricRequest, this.state.metricRequest1, this.state.metricRequest2, this.state.metricRequest3);
 
           if (keepSorted) {
             if (sortColumnsBy === sortModuleBy.importance){
@@ -494,7 +494,7 @@ export class PipelineMatrixBundle extends Component {
         }}
 
         metricRequestChange1={metricRequest1 => {
-              const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.state.metricRequest, metricRequest1, this.state.metricRequest2, this.state.metricRequest3);
+              const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.props.data.coefficients, this.state.metricRequest, metricRequest1, this.state.metricRequest2, this.state.metricRequest3);
 
               if (keepSorted) {
                 if (sortColumnsBy === sortModuleBy.importance){
@@ -517,7 +517,7 @@ export class PipelineMatrixBundle extends Component {
         }}
 
         metricRequestChange2={metricRequest2 => {
-            const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.state.metricRequest, this.state.metricRequest1, metricRequest2, this.state.metricRequest3);
+            const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines,this.props.data.coefficients, this.state.metricRequest, this.state.metricRequest1, metricRequest2, this.state.metricRequest3);
 
               if (keepSorted) {
                 if (sortColumnsBy === sortModuleBy.importance){
@@ -540,7 +540,7 @@ export class PipelineMatrixBundle extends Component {
         }}
 
         metricRequestChange3={metricRequest3 => {
-            const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.state.metricRequest, this.state.metricRequest1, this.state.metricRequest2, metricRequest3);
+            const importances = computePrimitiveImportances(this.props.data.infos, this.state.pipelines, this.props.data.coefficients, this.state.metricRequest, this.state.metricRequest1, this.state.metricRequest2, metricRequest3);
 
               if (keepSorted) {
                 if (sortColumnsBy === sortModuleBy.importance){

@@ -182,7 +182,7 @@ def compute_metric_map(pipelines):
         for score in pipeline['scores']:
             pipeline['score_map'][score['metric']['metric']] = score            
 
-def prepare_data_pipeline_matrix(pipelines, manual_primitive_types=None):
+def prepare_data_pipeline_matrix(pipelines, coefficients, manual_primitive_types=None):
     pipelines = copy.deepcopy(pipelines)
     extract_d3m_time_metric(pipelines)
     compute_metric_map(pipelines)
@@ -192,14 +192,15 @@ def prepare_data_pipeline_matrix(pipelines, manual_primitive_types=None):
 
     data = {
         "infos": info,
+        "coefficients": coefficients,
         "pipelines": pipelines,
         "module_types": list(module_types),
     }
     return data
 
-def get_pipeline_profiler_html(pipelines, manual_primitive_types=None):
+def get_pipeline_profiler_html(pipelines, coefficients, manual_primitive_types=None):
     id = id_generator()
-    data_dict = prepare_data_pipeline_matrix(pipelines, manual_primitive_types)
+    data_dict = prepare_data_pipeline_matrix(pipelines, coefficients, manual_primitive_types)
     html_all = make_body(data_dict, id)
     return html_all
     
